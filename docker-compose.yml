@@ -1,0 +1,100 @@
+services:
+  # API Gateway to route traffic to individual microservices
+  gateway:
+    container_name: ddd_gateway
+    build:
+      context: ./gateway
+    ports:
+      - "8080:80"
+    depends_on:
+      - user-service
+      - order-service
+    networks:
+      - ddd-network
+    restart: unless-stopped
+
+  # User & Authentication Microservice
+  user-service:
+    container_name: ddd_user_service
+    build:
+      context: ./services/user-service
+    ports:
+      - "8001:8000"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      # Override DB settings to use the centralized MariaDB
+      - DB_CONNECTION=mysql
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_DATABASE=user_db
+      - DB_USERNAME=ai4dt
+      - DB_PASSWORD=ai4dt@example
+    volumes:
+      - ./services/user-service:/app
+      - /app/vendor
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - ddd-network
+    restart: unless-stopped
+
+  # Order Microservice
+  order-service:
+    container_name: ddd_order_service
+    build:
+      context: ./services/order-service
+    ports:
+      - "8002:8000"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      # Internal URL to communicate with User Service
+      - USER_SERVICE_URL=http://user-service:8000
+      # Override DB settings to use the centralized MariaDB
+      - DB_CONNECTION=mysql
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_DATABASE=order_db
+      - DB_USERNAME=ai4dt
+      - DB_PASSWORD=ai4dt@example
+    volumes:
+      - ./services/order-service:/app
+      - /app/vendor
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - ddd-network
+    restart: unless-stopped
+
+  # Centralized MariaDB for all services (isolated databases init-db.sql)
+  mariadb:
+    container_name: ddd_mariadb
+    build:
+      context: infrastructure/mariadb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      # Automatically run SQL scripts inside this folder to create microservice databases
+      - ./infrastructure/mariadb/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root@example251113
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - ddd-network
+    restart: always
+
+
+networks:
+  ddd-network:
+    driver: bridge
+
+volumes:
+  mariadb-data:
