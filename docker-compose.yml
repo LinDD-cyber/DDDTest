@@ -38,7 +38,9 @@ services:
         condition: service_healthy
     networks:
       - ddd-network
+    command: php -S 0.0.0.0:8000 -t public
     restart: unless-stopped
+
 
   # Order Microservice
   order-service:
@@ -67,7 +69,9 @@ services:
         condition: service_healthy
     networks:
       - ddd-network
+    command: php -S 0.0.0.0:8000 -t public
     restart: unless-stopped
+
 
   # Centralized MariaDB for all services (isolated databases init-db.sql)
   mariadb:
