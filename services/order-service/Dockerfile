@@ -1,7 +1,12 @@
-FROM php:8.4-cli-alpine
+FROM php:8.4-fpm
 
 # Install system dependencies & PHP extensions
-RUN apk add --no-cache git unzip bash mysql-client
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    bash \
+    default-mysql-client \
+    && rm -rf /var/lib/apt/lists/*
 RUN docker-php-ext-install pdo pdo_mysql
 
 # Get composer

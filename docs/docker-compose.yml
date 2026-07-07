@@ -1,0 +1,50 @@
+services:
+  gateway:
+    build:
+      context: ./gateway
+    ports:
+      - "80:80"
+    depends_on:
+      - user-service
+      - order-service
+    networks:
+      - u-badminton-network
+
+  user-service:
+    build:
+      context: ./services/user-service
+    volumes:
+      - ./services/user-service:/app
+      - user-vendor:/app/vendor
+    environment:
+      - APP_KEY=base64:zZ3bY2M1ZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMgo=
+      - APP_DEBUG=true
+      - DB_CONNECTION=sqlite
+      - DB_DATABASE=/app/database/database.sqlite
+    networks:
+      - u-badminton-network
+
+  order-service:
+    build:
+      context: ./services/order-service
+    volumes:
+      - ./services/order-service:/app
+      - order-vendor:/app/vendor
+    environment:
+      - APP_KEY=base64:q1w2e3r4t5y6u7i8o9p0a1s2d3f4g5h6j7k8l9z0x1c=
+      - APP_DEBUG=true
+      - USER_SERVICE_URL=http://user-service:8000
+      - DB_CONNECTION=sqlite
+      - DB_DATABASE=/app/database/database.sqlite
+    depends_on:
+      - user-service
+    networks:
+      - u-badminton-network
+
+volumes:
+  user-vendor:
+  order-vendor:
+
+networks:
+  u-badminton-network:
+    driver: bridge

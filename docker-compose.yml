@@ -1,7 +1,8 @@
 services:
-  # API Gateway to route traffic to individual microservices
+  # =========================
+  # API Gateway
+  # =========================
   gateway:
-    container_name: ddd_gateway
     build:
       context: ./gateway
     ports:
@@ -9,96 +10,76 @@ services:
     depends_on:
       - user-service
       - order-service
-    networks:
-      - ddd-network
     restart: unless-stopped
+    networks:
+      - u-badminton-network
 
-  # User & Authentication Microservice
+  # =========================
+  # User Service
+  # =========================
   user-service:
-    container_name: ddd_user_service
     build:
       context: ./services/user-service
-    ports:
-      - "8001:8000"
-    environment:
-      - APP_ENV=local
-      - APP_DEBUG=true
-      # Override DB settings to use the centralized MariaDB
-      - DB_CONNECTION=mysql
-      - DB_HOST=mariadb
-      - DB_PORT=3306
-      - DB_DATABASE=user_db
-      - DB_USERNAME=ai4dt
-      - DB_PASSWORD=ai4dt@example
     volumes:
       - ./services/user-service:/app
-      - /app/vendor
-    depends_on:
-      mariadb:
-        condition: service_healthy
-    networks:
-      - ddd-network
-    command: php -S 0.0.0.0:8000 -t public
+      - user-vendor:/app/vendor
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+
+      DB_CONNECTION: mysql
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_DATABASE: user_db
+      DB_USERNAME: root
+      DB_PASSWORD: root@0000
+
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
     restart: unless-stopped
+    networks:
+      - u-badminton-network
 
-
-  # Order Microservice
+  # =========================
+  # Order Service
+  # =========================
   order-service:
-    container_name: ddd_order_service
     build:
       context: ./services/order-service
-    ports:
-      - "8002:8000"
-    environment:
-      - APP_ENV=local
-      - APP_DEBUG=true
-      # Internal URL to communicate with User Service
-      - USER_SERVICE_URL=http://user-service:8000
-      # Override DB settings to use the centralized MariaDB
-      - DB_CONNECTION=mysql
-      - DB_HOST=mariadb
-      - DB_PORT=3306
-      - DB_DATABASE=order_db
-      - DB_USERNAME=ai4dt
-      - DB_PASSWORD=ai4dt@example
+    depends_on:
+      - user-service
     volumes:
       - ./services/order-service:/app
-      - /app/vendor
-    depends_on:
-      mariadb:
-        condition: service_healthy
-    networks:
-      - ddd-network
-    command: php -S 0.0.0.0:8000 -t public
-    restart: unless-stopped
-
-
-  # Centralized MariaDB for all services (isolated databases init-db.sql)
-  mariadb:
-    container_name: ddd_mariadb
-    build:
-      context: infrastructure/mariadb
-    ports:
-      - "3306:3306"
-    volumes:
-      - mariadb-data:/var/lib/mysql
-      # Automatically run SQL scripts inside this folder to create microservice databases
-      - ./infrastructure/mariadb/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - order-vendor:/app/vendor
     environment:
-      - MYSQL_ROOT_PASSWORD=root@example251113
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+      APP_ENV: local
+      APP_DEBUG: "true"
+
+      USER_SERVICE_URL: http://user-service:8000
+
+      DB_CONNECTION: mysql
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_DATABASE: order_db
+      DB_USERNAME: root
+      DB_PASSWORD: root@0000
+
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+    restart: unless-stopped
     networks:
-      - ddd-network
-    restart: always
-
-
-networks:
-  ddd-network:
-    driver: bridge
+      - u-badminton-network
 
 volumes:
-  mariadb-data:
+  user-vendor:
+  order-vendor:
+
+networks:
+  u-badminton-network:
+    external: true

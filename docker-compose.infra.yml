@@ -1,0 +1,106 @@
+services:
+##docker-compose.infra.yml
+  # =========================
+  # Database Layer
+  # =========================
+  mariadb:
+    build:
+      context: ./infrastructure/mariadb
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root@0000
+    volumes:
+      - mariadb-data:/var/lib/mysql
+#      - ./infrastructure/mariadb/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: always
+    networks:
+      - u-badminton-network
+
+
+  # =========================
+  # Cache Layer
+  # =========================
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - u-badminton-network
+
+
+  # =========================
+  # Message Broker
+  # =========================
+  rabbitmq:
+    image: rabbitmq:4-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"   # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    restart: unless-stopped
+    networks:
+      - u-badminton-network
+
+
+  # =========================
+  # Object Storage
+  # =========================
+#  minio:
+#    image: minio/minio:latest
+#    command: server /data --console-address ":9001"
+#    ports:
+#      - "9000:9000"
+#      - "9001:9001"
+#    environment:
+#      MINIO_ROOT_USER: minioadmin
+#      MINIO_ROOT_PASSWORD: minioadmin123
+#    volumes:
+#      - minio-data:/data
+#    restart: unless-stopped
+#    networks:
+#      - u-badminton-network
+
+
+  # =========================
+  # Reverse Proxy (optional but recommended)
+  #
+  ####  nginx 拆離 : 讓gateway只做 routing logic（不要做 reverse proxy）
+  # =========================
+#  nginx:
+#    image: nginx:alpine
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    volumes:
+#      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+#    depends_on:
+#      - mariadb
+#    restart: unless-stopped
+#    networks:
+#      - u-badminton-network
+
+
+# =========================
+# Shared Network (IMPORTANT)
+# =========================
+networks:
+  u-badminton-network:
+    name: u-badminton-network
+    driver: bridge
+
+
+# =========================
+# Persistent Volumes
+# =========================
+volumes:
+  mariadb-data:
+#  minio-data:
