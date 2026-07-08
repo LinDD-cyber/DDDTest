@@ -66,4 +66,27 @@ class OrderController extends Controller
 
         return response()->json($order);
     }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'course_id' => 'required|integer',
+            'amount' => 'required|integer|min:0',
+            'status' => 'nullable|string|in:pending,paid,cancelled',
+        ]);
+
+        $validated['user_id'] = $request->input('auth_user_id');
+        if (empty($validated['status'])) {
+            $validated['status'] = 'pending';
+        }
+
+        $order = Order::create($validated);
+
+        $userId = $order->user_id;
+        $user = $this->userClient->getUser($userId);
+        $orderArray = $order->toArray();
+        $orderArray['user'] = $user ?: ['id' => $userId, 'name' => 'Unknown User (Offline)'];
+
+        return response()->json($orderArray, 201);
+    }
 }

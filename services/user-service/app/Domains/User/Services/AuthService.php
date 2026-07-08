@@ -205,7 +205,7 @@ class AuthService
         return ServiceResult::success(
             [$this->messageBuilder->direct('login_success')],
             [
-                'token' => $token,
+                'access_token' => $token,
                 'user' => $user->only(['id', 'uuid', 'account', 'email', 'status', 'last_login_at'])
             ]
         );
