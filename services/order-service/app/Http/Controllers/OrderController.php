@@ -20,9 +20,6 @@ class OrderController extends Controller
         $orders = [];
         try {
             $orders = Order::all()->toArray();
-            if (empty($orders)) {
-                $orders = Order::getMockOrders();
-            }
         } catch (\Exception $e) {
             $orders = Order::getMockOrders();
         }

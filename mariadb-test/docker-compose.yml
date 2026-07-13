@@ -1,0 +1,8 @@
+services:
+    mariadb-test:
+      image: mariadb:11.8
+      ports:
+        - "55555:3306"
+      environment:
+        - MARIADB_ROOT_HOST=%
+        - MARIADB_ROOT_PASSWORD=ai4dt

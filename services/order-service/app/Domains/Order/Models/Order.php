@@ -11,8 +11,8 @@ class Order extends Model
     public static function getMockOrders()
     {
         return [
-            ['id' => 101, 'user_id' => 1, 'course_id' => 201, 'amount' => 1500, 'status' => 'paid'],
-            ['id' => 102, 'user_id' => 2, 'course_id' => 202, 'amount' => 2400, 'status' => 'pending'],
+            ['id' => 101, 'user_id' => 1, 'course_id' => 201, 'amount' => 1500, 'status' => 'n'],
+            ['id' => 102, 'user_id' => 2, 'course_id' => 202, 'amount' => 2400, 'status' => 'nn'],
         ];
     }
 }
