@@ -28,7 +28,8 @@ DDDTest/ (專案根目錄)
 ├── services/                # 微服務主目錄 (各服務高內聚、低耦合)
 │   ├── user-service/        # 用戶與權限微服務 (PHP Laravel 11)
 │   └── order-service/       # 訂單微服務 (PHP Laravel 11)
-├── shared/                  # 共享模組或套件 (供各服務共享的 DTO, 公用工具等，預留)
+├── shared/                  # 共享模組與通用套件
+│   └── common/              # 本地共享 PHP 套件 (ddd-test/common，供各微服務 Symlink 載入)
 ├── docs/                    # 專案相關設計文件與配置備份
 ├── docker-compose.yml       # 應用服務層 (Services & Gateway) 的 Docker Compose 設定
 └── docker-compose.infra.yml # 基礎設施層 (Database, Cache) 的 Docker Compose 設定
@@ -81,9 +82,61 @@ services/user-service/app/ (或 order-service/app/)
 * **[services](file:///C:/Users/LIN/Desktop/DLH/project/DDDTest/services)**：
   存放各自獨立的微服務，每個服務都包含獨立的運行環境 (`Dockerfile`)、相依套件管理 (`composer.json`) 與設定檔。服務間不直接共享資料庫，而是透過 HTTP API 或 API Gateway 進行通訊。
 * **[shared](file:///C:/Users/LIN/Desktop/DLH/project/DDDTest/shared)**：
-  用於存放跨微服務共享的程式碼或套件，以防止代碼重複。
+  跨微服務共享的通用程式碼與本地 Composer 套件目錄。包含通用 API 回應工具（`ApiResponder`）、通用服務結果（`ServiceResult`）、閘道器請求驗證中介軟體（`HeaderAuthMiddleware`）、微服務間的 HTTP 用戶端（`UserClient`）以及**通用繁體中文驗證語系檔（`validation.php`）**。透過 Composer 的 Path Repository 功能，以軟連結（Symlink）形式載入到各微服務中，實現高複用性與強類型邊界。
 * **[docs](file:///C:/Users/LIN/Desktop/DLH/project/DDDTest/docs)**：
   存放開發團隊的設計文件、環境變數範本以及 Docker 設計的參考說明。
+---
+
+## 共享套件開發與使用須知 (Shared Package Development Guide)
+
+本專案使用 `shared/common` 目錄作為跨微服務共用的 PHP 套件（套件名稱為 `ddd-test/common`）。為了確保開發順暢，請遵循以下開發須知：
+
+### 1. 運作原理 (Symlink)
+* **軟連結機制**：當在微服務執行 `composer install/update` 後，Composer 會自動在微服務的 `vendor/ddd-test/common` 目錄建立軟連結（Symlink）指向專案根目錄的 `shared/common`。
+* **即時生效**：在 `shared/common/src` 內修改任何 `*.php` 檔案的程式碼，各微服務中均會**即時同步生效**，無須重新執行 `composer update` 或複製檔案。
+
+### 2. 容器開發注意事項
+* **Docker 卷掛載**：為了讓執行中的 Docker 容器能正確解析並存取宿主機（Host）上的共享程式碼，`docker-compose.yml` 中必須掛載 `./shared:/shared` 卷。
+* **修改 `composer.json` 元件描述**：若修改了 `shared/common/composer.json`（例如新增套件依賴、新增 Autoload 映射、修改 `laravel.providers` 等），必須在微服務容器中手動更新 Composer 鎖定檔：
+  ```bash
+  docker exec -it <container_name> composer update ddd-test/common
+  ```
+  *(微服務容器名稱為 `dddtest-user-service-1` 與 `dddtest-order-service-1`)*。
+
+### 3. Laravel Package Discovery 緩存清理
+* 本共享套件透過 `Shared\Providers\SharedCommonServiceProvider` 自動載入並合併預設的 `apiResponse`、`apiMessage` 配置，以及繁體中文驗證語系檔（`validation.php`）。
+* 若發生新註冊的類別或套件無法發現的問題，可能是 Laravel 的框架引導快取所致，請在容器中執行以下指令清理快取：
+  ```bash
+  # 1. 刪除快取檔案
+  docker exec -it <container_name> rm -f bootstrap/cache/packages.php bootstrap/cache/services.php
+  # 2. 重新觸發套件偵測
+  docker exec -it <container_name> php artisan package:discover
+  ```
+
+### 4. 統一設定與自訂覆寫
+* **預設配置**：`shared/common/config` 下的 [apiResponse.php](file:///C:/Users/LIN/Desktop/DLH/project/DDDTest/shared/common/config/apiResponse.php) 與 [apiMessage.php](file:///C:/Users/LIN/Desktop/DLH/project/DDDTest/shared/common/config/apiMessage.php) 是全系統的通用預設值。套件內 `shared/common/lang/zh_TW/validation.php` 則為繁體中文驗證語系的通用基底。
+* **自訂覆寫**：微服務若有特殊客製化需求，可在其本地對應目錄（如 `user-service/config/` 或 `user-service/lang/`）下建立同名檔案，Laravel 在加載時會**優先採用並覆寫**本地的設定，而未覆寫的鍵值將自動採用共享套件的預設配置。
+
+#### 驗證語系 (Validation) 使用與開發說明：
+1. **啟用中文驗證語系**：請確保在各微服務根目錄的 `.env` 檔案中已加入環境變數：
+   ```env
+   APP_LOCALE=zh_TW
+   ```
+2. **共用驗證規則與欄位翻譯**：
+   * 當 FormRequest 驗證失敗時，Laravel 會自動套用共享套件 [validation.php](file:///C:/Users/LIN/Desktop/DLH/project/DDDTest/shared/common/lang/zh_TW/validation.php) 中的中文模板（如：`:attribute 欄位必填。`）。
+   * 常用欄位對照已統一管理在 `attributes` 區塊（例如 `account` ➡️ `帳號`、`password` ➡️ `密碼`、`email` ➡️ `電子郵件`）。
+3. **新增或覆寫欄位翻譯 (Attributes)**：
+   * **全局新增**：若新增的欄位為跨服務通用，請直接修改共享套件的 [validation.php](file:///C:/Users/LIN/Desktop/DLH/project/DDDTest/shared/common/lang/zh_TW/validation.php) 中的 `attributes` 陣列。
+   * **本地覆寫**：若新增的欄位僅適用於特定服務（如 `order-service` 專屬的 `course_id`），請在該微服務根目錄下建立 `lang/zh_TW/validation.php`，僅宣告需要的屬性對照即可。例如：
+     ```php
+     <?php
+     return [
+         'attributes' => [
+             'course_id' => '課程識別碼',
+         ],
+     ];
+     ```
+     本套件已自訂載入器 `MixedFileLoader`，會自動將其與共享套件的預設語系進行深度合併，不需要複製整個檔案。
 
 ---
 

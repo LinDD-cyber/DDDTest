@@ -6,7 +6,7 @@ use App\Domains\User\Models\User;
 use App\Domains\User\Models\Profile;
 use App\Domains\User\Models\CoachProfile;
 use App\Domains\User\Models\FrontIdentity;
-use App\Support\ServiceResult;
+use Shared\Support\ServiceResult;
 use App\Support\ApiMessageBuilder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;

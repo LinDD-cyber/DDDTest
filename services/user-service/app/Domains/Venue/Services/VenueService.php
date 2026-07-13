@@ -3,7 +3,7 @@
 namespace App\Domains\Venue\Services;
 
 use App\Domains\Venue\Models\Venue;
-use App\Support\ServiceResult;
+use Shared\Support\ServiceResult;
 use App\Support\ApiMessageBuilder;
 use Exception;
 

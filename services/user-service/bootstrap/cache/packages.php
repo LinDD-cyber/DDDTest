@@ -1,4 +1,25 @@
 <?php return array (
+  'ddd-test/common' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Shared\\Providers\\SharedCommonServiceProvider',
+    ),
+  ),
+  'laravel/passport' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Laravel\\Passport\\PassportServiceProvider',
+    ),
+  ),
+  'laravel/sanctum' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Laravel\\Sanctum\\SanctumServiceProvider',
+    ),
+  ),
   'nesbot/carbon' => 
   array (
     'providers' => 
@@ -11,6 +32,13 @@
     'providers' => 
     array (
       0 => 'Termwind\\Laravel\\TermwindServiceProvider',
+    ),
+  ),
+  'spatie/laravel-permission' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Spatie\\Permission\\PermissionServiceProvider',
     ),
   ),
 );

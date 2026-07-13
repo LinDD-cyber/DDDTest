@@ -4,7 +4,7 @@ namespace App\Domains\User\Services;
 
 use App\Domains\User\Models\User;
 use App\Domains\User\Models\UserLoginLog;
-use App\Support\ServiceResult;
+use Shared\Support\ServiceResult;
 use App\Support\ApiMessageBuilder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;

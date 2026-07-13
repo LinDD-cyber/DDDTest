@@ -23,7 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, $request) {
-            return \App\Support\ApiResponder::fail(
+            return \Shared\Support\ApiResponder::fail(
                 [config('apiMessage.direct.unauthorized', '請先登入後再操作。')],
                 ['code' => 'unauthorized'],
                 401

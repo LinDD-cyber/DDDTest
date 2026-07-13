@@ -1,4 +1,11 @@
 <?php return array (
+  'ddd-test/common' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Shared\\Providers\\SharedCommonServiceProvider',
+    ),
+  ),
   'nesbot/carbon' => 
   array (
     'providers' => 

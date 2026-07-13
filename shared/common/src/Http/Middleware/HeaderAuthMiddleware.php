@@ -1,11 +1,11 @@
 <?php
-
-namespace App\Http\Middleware;
-
+ 
+namespace Shared\Http\Middleware;
+ 
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-
+ 
 class HeaderAuthMiddleware
 {
     /**
@@ -18,7 +18,7 @@ class HeaderAuthMiddleware
         $userId = $request->header('X-User-Id');
         $userRoles = $request->header('X-User-Roles');
         $userVenues = $request->header('X-User-Venues');
-
+ 
         if (!$userId) {
             return response()->json([
                 'status' => -1,
@@ -29,14 +29,14 @@ class HeaderAuthMiddleware
                 ]
             ], 401);
         }
-
+ 
         // Merge into request parameters so controllers can access it
         $request->merge([
             'auth_user_id' => (int) $userId,
             'auth_user_roles' => $userRoles ? explode(',', $userRoles) : [],
             'auth_user_venues' => $userVenues ? explode(',', $userVenues) : [],
         ]);
-
+ 
         return $next($request);
     }
 }

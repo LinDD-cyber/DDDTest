@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Domains\Order\Models\Order;
-use App\Infrastructure\Clients\UserClient;
+use Shared\Infrastructure\Clients\UserClient;
 
 class OrderController extends Controller
 {

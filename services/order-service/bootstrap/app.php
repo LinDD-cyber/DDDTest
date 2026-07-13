@@ -13,7 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'gateway.auth' => \App\Http\Middleware\HeaderAuthMiddleware::class,
+            'gateway.auth' => \Shared\Http\Middleware\HeaderAuthMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

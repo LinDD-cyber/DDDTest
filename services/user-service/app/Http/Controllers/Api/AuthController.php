@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Domains\User\Services\AuthService;
-use App\Traits\MapsServiceResult;
+use Shared\Traits\MapsServiceResult;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 

@@ -2,8 +2,15 @@
     "name": "u-badminton/user-service",
     "description": "User Service",
     "type": "project",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../shared/common"
+        }
+    ],
     "require": {
         "php": "^8.2",
+        "ddd-test/common": "*",
         "guzzlehttp/guzzle": "^7.8",
         "laravel/framework": "^11.0",
         "laravel/passport": "^13.7",
@@ -25,6 +32,6 @@
             "php-http/discovery": true
         }
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true
 }

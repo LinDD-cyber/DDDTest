@@ -9,7 +9,7 @@ use App\Http\Requests\Admin\UpdateUserVenuesRequest;
 use App\Http\Requests\Admin\UpgradeToCoachRequest;
 use App\Domains\User\Models\User;
 use App\Domains\User\Services\UserService;
-use App\Traits\MapsServiceResult;
+use Shared\Traits\MapsServiceResult;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 

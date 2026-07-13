@@ -1,14 +1,14 @@
 <?php
-namespace App\Traits;
-
+namespace Shared\Traits;
+ 
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Throwable;
-
+ 
 trait ApiResponseTool
 {
-
+ 
     protected  int $status;
     protected  int $httpCode;
     public function __construct()
@@ -16,8 +16,8 @@ trait ApiResponseTool
         $this->httpCode = config('status.http_code.success');
         $this->status =config('status.status.success');
     }
-
-
+ 
+ 
     /**
      * 生成標準的 API 回應
      *
@@ -36,7 +36,7 @@ trait ApiResponseTool
     {
         $httpCode = $httpCode ?? config('status.httpCode.success');
         $status = $status ?? config('status.businessCode.success');
-
+ 
         return response()->json([
             'status'   => $status,
             'messages' => $messages ?: [$this->defaultMessagesByHttpCode[$httpCode] ?? '未知錯誤'],
@@ -50,12 +50,12 @@ trait ApiResponseTool
     {
         $httpCode = config('status.http_code.system_error');
         $status = config('status.status.fail');
-
+ 
         Log::error($exception->getMessage());
-
+ 
         return $this->generateApiResponse($httpCode, $status, $messages);
     }
-
+ 
     /**
      * 預設訊息
      * @var array|string[]

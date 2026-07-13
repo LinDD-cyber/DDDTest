@@ -1,18 +1,18 @@
 <?php
-
-namespace App\Infrastructure\Clients;
-
+ 
+namespace Shared\Infrastructure\Clients;
+ 
 use Illuminate\Support\Facades\Http;
-
+ 
 class UserClient
 {
     protected string $baseUrl;
-
+ 
     public function __construct()
     {
         $this->baseUrl = env('USER_SERVICE_URL', 'http://user-service:8000');
     }
-
+ 
     public function getUser(int $id): ?array
     {
         try {

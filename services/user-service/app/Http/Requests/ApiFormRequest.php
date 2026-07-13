@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Support\ApiResponder;
+use Shared\Support\ApiResponder;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -13,7 +13,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
  * 驗證文案由 Laravel Validator 依 locale 從 lang/zh_TW/validation.php（及子類 rules）
  * 產生，此類不另定義訊息內容。
  *
- * 回應：HTTP 422、error.code = validation_failed、messages 為各欄錯誤字串陣列。
+ * 回應：HTTP 422、error.code = validation_failed、messages 為統一錯誤提示字串陣列。
  */
 abstract class ApiFormRequest extends FormRequest
 {

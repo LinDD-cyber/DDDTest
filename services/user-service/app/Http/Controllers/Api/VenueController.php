@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CreateVenueRequest;
 use App\Domains\Venue\Services\VenueService;
-use App\Traits\MapsServiceResult;
+use Shared\Traits\MapsServiceResult;
 use Illuminate\Http\JsonResponse;
 
 class VenueController extends Controller

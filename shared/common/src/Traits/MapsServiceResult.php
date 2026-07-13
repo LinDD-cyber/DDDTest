@@ -1,11 +1,11 @@
 <?php
-
-namespace App\Traits;
-
-use App\Support\ApiResponder;
-use App\Support\ServiceResult;
+ 
+namespace Shared\Traits;
+ 
+use Shared\Support\ApiResponder;
+use Shared\Support\ServiceResult;
 use Illuminate\Http\JsonResponse;
-
+ 
 /**
  * 供新版 Controller 使用：依 ServiceResult 內的 reason 自動映射
  * HTTP 狀態碼與 error.code，避免每個 Controller 重複 if-else。
@@ -20,10 +20,10 @@ trait MapsServiceResult
         if ($result->isSuccess()) {
             return ApiResponder::success($result->messages, $result->data);
         }
-
+ 
         $reason     = $result->data['reason'] ?? null;
         $reasonMap  = config('apiResponse.reason_map', []);
-
+ 
         if ($reason && isset($reasonMap[$reason])) {
             $httpKey   = $reasonMap[$reason]['http'];
             $errorCode = $reasonMap[$reason]['code'];
@@ -31,11 +31,11 @@ trait MapsServiceResult
             $httpKey   = 'bad_request';
             $errorCode = $defaultErrorCode;
         }
-
+ 
         $httpCode = (int) config("apiResponse.http_code.{$httpKey}",
             config('apiResponse.http_code.bad_request')
         );
-
+ 
         return ApiResponder::fail($result->messages, [
             'code'   => $errorCode,
             'fields' => $result->data,

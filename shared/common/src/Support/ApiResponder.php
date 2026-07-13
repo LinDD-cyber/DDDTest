@@ -1,9 +1,9 @@
 <?php
-
-namespace App\Support;
-
+ 
+namespace Shared\Support;
+ 
 use Illuminate\Http\JsonResponse;
-
+ 
 class ApiResponder
 {
     /**
@@ -16,7 +16,7 @@ class ApiResponder
     public static function success(array $messages, mixed $data = [], ?int $httpCode = null): JsonResponse
     {
         $code = $httpCode ?? (int) config('apiResponse.http_code.ok');
-
+ 
         return response()->json([
             'status'   => (int) config('apiResponse.status.success'),
             'data'     => $data,
@@ -24,7 +24,7 @@ class ApiResponder
             'error'    => null,
         ], $code);
     }
-
+ 
     /**
      * 失敗回應（四欄固定格式，data 強制為 []）
      *
@@ -35,7 +35,7 @@ class ApiResponder
     public static function fail(array $messages, array $error, ?int $httpCode = null): JsonResponse
     {
         $code = $httpCode ?? (int) config('apiResponse.http_code.bad_request');
-
+ 
         return response()->json([
             'status'   => (int) config('apiResponse.status.fail'),
             'data'     => [],
