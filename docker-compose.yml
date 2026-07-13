@@ -19,7 +19,8 @@ services:
   # =========================
   user-service:
     build:
-      context: ./services/user-service
+      context: .
+      dockerfile: services/user-service/Dockerfile
     volumes:
       - ./services/user-service:/app
       - ./shared:/shared
@@ -49,7 +50,8 @@ services:
   # =========================
   order-service:
     build:
-      context: ./services/order-service
+      context: .
+      dockerfile: services/order-service/Dockerfile
     depends_on:
       - user-service
     volumes:
