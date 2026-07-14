@@ -1,0 +1,53 @@
+# ==========================================
+# U-Badminton Microservices Git Ignore Configuration
+# ==========================================
+
+# 1. System & IDE Files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# 2. Local Environment Files (Sensitive Data)
+.env
+.env.*
+!.env.example
+services/*/.env
+services/*/.env.*
+!services/*/.env.example
+
+# 3. Backend Dependencies (Composer)
+vendor/
+services/*/vendor/
+shared/common/vendor/
+shared/vendor/
+
+# 4. Frontend Dependencies & Builds
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# 5. Laravel Specific Ignore Rules (for all services)
+services/*/storage/logs/*.log
+services/*/storage/framework/cache/data/*
+services/*/storage/framework/sessions/*
+services/*/storage/framework/views/*
+services/*/storage/framework/testing/*
+services/*/bootstrap/cache/*.php
+
+# Keep directories but ignore content inside storage
+!services/*/storage/app/.gitignore
+!services/*/storage/framework/.gitignore
+!services/*/storage/logs/.gitignore
+
+# 6. Database & PHPUnit
+.phpunit.result.cache
+*.sqlite
+infrastructure/mariadb/data/
