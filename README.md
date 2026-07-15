@@ -213,6 +213,28 @@ docker compose up -d
 
 ---
 
+## 使用套件說明 (Installed Packages)
+
+本專案在各個服務與共享模組中引入了多個成熟的開源套件，以支撐系統的安全、通訊與審計需求：
+
+### 1. 共享模組 (`shared/common`)
+* **[php-amqplib/php-amqplib](https://github.com/php-amqplib/php-amqplib)**:
+  * **用途**：RabbitMQ 的純 PHP 協定實作。
+  * **說明**：專案將其封裝於 [RabbitMQService](file:///C:/Users/LIN/Desktop/DLH/project/DDDTest/shared/common/src/Infrastructure/Messaging/RabbitMQService.php) 中，提供高階的 Publish / Consume 介面，支撐微服務之間的非同步事件傳遞（例如 `order-service` 建立訂單後通知 `user-service`）。
+
+### 2. 用戶服務 (`user-service`)
+* **[spatie/laravel-activitylog](https://github.com/spatie/laravel-activitylog)**:
+  * **用途**：自動與手動記錄 Eloquent Model 變更與 API 操作日誌。
+  * **說明**：用於實作 API 審計日誌（Audit Log）與用戶操作追蹤。目前配置了 [ApiActivityLog](file:///C:/Users/LIN/Desktop/DLH/project/DDDTest/services/user-service/app/Http/Middleware/ApiActivityLog.php) 中介軟體，能自動過濾敏感資訊並紀錄重要寫入 API（如新增管理員、升級教練等）的 IP、Payload 及狀態碼。過濾與排除規則可於 [api_log.php](file:///C:/Users/LIN/Desktop/DLH/project/DDDTest/services/user-service/config/api_log.php) 進行調整。
+* **[spatie/laravel-permission](https://github.com/spatie/laravel-permission)**:
+  * **用途**：角色與權限管理 (RBAC)。
+  * **說明**：用於管理後台人員的權限（例如 `backend_user.manage` 權限）以及區分角色等級（如 `System Admin`）。
+* **[laravel/passport](https://github.com/laravel/passport)** 與 **[laravel/sanctum](https://github.com/laravel/sanctum)**:
+  * **用途**：API 憑證與認證機制。
+  * **說明**：提供微服務架構中用戶認證 Token 的簽發與驗證機制。
+
+---
+
 ## 常見問題排除 (Troubleshooting)
 
 ### Q1: 資料庫連線失敗 (`Name or service not known`)
