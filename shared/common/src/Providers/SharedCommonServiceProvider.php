@@ -17,6 +17,10 @@ class SharedCommonServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             __DIR__.'/../../config/apiMessage.php', 'apiMessage'
         );
+
+        $this->app->singleton(\Shared\Infrastructure\Messaging\RabbitMQService::class, function ($app) {
+            return new \Shared\Infrastructure\Messaging\RabbitMQService();
+        });
  
         $this->app->extend('translation.loader', function ($loader, $app) {
             if ($loader instanceof \Illuminate\Translation\FileLoader) {

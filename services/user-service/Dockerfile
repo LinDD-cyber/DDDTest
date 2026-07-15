@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
     bash \
     default-mysql-client \
     && rm -rf /var/lib/apt/lists/*
-RUN docker-php-ext-install pdo pdo_mysql
+RUN docker-php-ext-install pdo pdo_mysql sockets
 
 # Get composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

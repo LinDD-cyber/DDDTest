@@ -1,11 +1,12 @@
 <?php
  
-namespace Shared\Http\Middleware;
+namespace Shared\Infrastructure;
  
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
- 
+use function Shared\Http\Middleware\response;
+
 class HeaderAuthMiddleware
 {
     /**
