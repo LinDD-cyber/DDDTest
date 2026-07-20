@@ -8,7 +8,7 @@ services:
       - user-service
       - order-service
     networks:
-      - u-badminton-network
+      - dddtest-network
 
   user-service:
     build:
@@ -22,7 +22,7 @@ services:
       - DB_CONNECTION=sqlite
       - DB_DATABASE=/app/database/database.sqlite
     networks:
-      - u-badminton-network
+      - dddtest-network
 
   order-service:
     build:
@@ -39,12 +39,12 @@ services:
     depends_on:
       - user-service
     networks:
-      - u-badminton-network
+      - dddtest-network
 
 volumes:
   user-vendor:
   order-vendor:
 
 networks:
-  u-badminton-network:
+  dddtest-network:
     driver: bridge

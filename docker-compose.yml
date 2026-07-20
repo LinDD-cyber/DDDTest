@@ -12,7 +12,7 @@ services:
       - order-service
     restart: unless-stopped
     networks:
-      - u-badminton-network
+      - dddtest-network
 
   # =========================
   # User Service
@@ -43,7 +43,7 @@ services:
       RABBITMQ_PORT: 5672
     restart: unless-stopped
     networks:
-      - u-badminton-network
+      - dddtest-network
 
   # =========================
   # Order Service
@@ -78,12 +78,12 @@ services:
       RABBITMQ_PORT: 5672
     restart: unless-stopped
     networks:
-      - u-badminton-network
+      - dddtest-network
 
 volumes:
   user-vendor:
   order-vendor:
 
 networks:
-  u-badminton-network:
+  dddtest-network:
     external: true

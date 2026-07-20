@@ -174,7 +174,7 @@ DDDTest/ (專案根目錄)
 ### 3. 多 Compose 檔案分離策略
 * [docker-compose.infra.yml](file:///C:/Users/LIN/Desktop/DLH/project/DDDTest/docker-compose.infra.yml) 用於啟動基礎設施，生命週期較長，通常只需啟動一次。
 * [docker-compose.yml](file:///C:/Users/LIN/Desktop/DLH/project/DDDTest/docker-compose.yml) 用於啟動頻繁更新的業務微服務與 Gateway。
-兩者透過一個外部共享的 Bridge 網路 `u-badminton-network` 串聯，確保了服務的可維護性。
+兩者透過一個外部共享的 Bridge 網路 `dddtest-network` 串聯，確保了服務的可維護性。
 
 ---
 
@@ -183,7 +183,7 @@ DDDTest/ (專案根目錄)
 ### 1. 一鍵啟動開發環境
 在專案根目錄下，依序執行：
 ```bash
-# 1. 建立並啟動基礎設施 (會自動建立 u-badminton-network)
+# 1. 建立並啟動基礎設施 (會自動建立 dddtest-network)
 docker compose -f docker-compose.infra.yml up -d
 
 # 2. 啟動微服務與 API 閘道器
@@ -211,11 +211,11 @@ docker exec dddtest-order-service-1 php artisan migrate
 
 ### 2. 基礎設施容器離線導致服務連線失敗
 * **現象**: `user-service` 報告 `SQLSTATE[HY000] [2002] Connection refused`。
-* **原因**: `mariadb` 容器重啟或與 `u-badminton-network` 斷開。
+* **原因**: `mariadb` 容器重啟或與 `dddtest-network` 斷開。
 * **解決辦法**: 檢查 `docker ps`，若基礎設施正常，可執行以下指令重新連結網路：
   ```bash
-  docker network disconnect u-badminton-network dddtest-mariadb-1
-  docker network connect --alias mariadb u-badminton-network dddtest-mariadb-1
+  docker network disconnect dddtest-network dddtest-mariadb-1
+  docker network connect --alias mariadb dddtest-network dddtest-mariadb-1
   ```
 
 ---
@@ -295,7 +295,7 @@ COPY services/payment-service/ .
       USER_SERVICE_URL: http://user-service:8000
     restart: unless-stopped
     networks:
-      - u-badminton-network
+      - dddtest-network
 ```
 同時，記得在 `docker-compose.yml` 的最底端 `volumes` 區塊中定義具名 Volume，以阻隔本地 `vendor` 快取：
 ```yaml

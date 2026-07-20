@@ -145,7 +145,7 @@ services/user-service/app/ (或 order-service/app/)
 請依序執行以下步驟以逆序啟動專案：
 
 ### 1. 啟動基礎設施層 (Infrastructure Layer)
-首先，啟動資料庫、快取與訊息佇列等基礎設施，這會自動建立共享的橋接網路 `u-badminton-network`：
+首先，啟動資料庫、快取與訊息佇列等基礎設施，這會自動建立共享的橋接網路 `dddtest-network`：
 ```bash
 docker compose -f docker-compose.infra.yml up -d
 ```
@@ -238,13 +238,13 @@ docker compose up -d
 ## 常見問題排除 (Troubleshooting)
 
 ### Q1: 資料庫連線失敗 (`Name or service not known`)
-如果 `user-service` 或 `order-service` 丟出無法連線至 `mariadb` 的錯誤，可能是 MariaDB 容器在 Docker 網路重啟時斷開了與共享網路 `u-badminton-network` 的連線。
+如果 `user-service` 或 `order-service` 丟出無法連線至 `mariadb` 的錯誤，可能是 MariaDB 容器在 Docker 網路重啟時斷開了與共享網路 `dddtest-network` 的連線。
 
 請手動執行以下指令將 MariaDB 重新連回網路並設定別名：
 ```bash
 # 1. 斷開連線 (若有殘留舊連線)
-docker network disconnect u-badminton-network dddtest-mariadb-1
+docker network disconnect dddtest-network dddtest-mariadb-1
 
 # 2. 重新連線並設定別名
-docker network connect --alias mariadb u-badminton-network dddtest-mariadb-1
+docker network connect --alias mariadb dddtest-network dddtest-mariadb-1
 ```
