@@ -80,9 +80,47 @@ services:
     networks:
       - dddtest-network
 
+  # =========================
+  # Example Service (範本服務)
+  # =========================
+  example-service:
+    build:
+      context: .                          # 建置上下文設在專案根目錄，以便拷貝共用的 shared 目錄
+      dockerfile: services/example-service/Dockerfile # 指向此微服務的專案 Dockerfile 路徑
+    depends_on:
+      - user-service                      # 依賴於用戶服務（API Gateway 驗證 Token 時會向 user-service 進行內部請求）
+    volumes:
+      - ./services/example-service:/app   # 將本地新服務的程式碼目錄掛載至容器的 /app，支援熱重載（代碼變更即時生效）
+      - ./shared:/shared                  # 掛載共享套件目錄，供容器內部 composer path repository 機制建立軟連結 (Symlink)
+      - example-vendor:/app/vendor        # 使用 Docker 命名磁碟卷儲存 vendor 相依套件，避免與宿主機的 vendor 目錄發生衝突與寫入權限問題
+    environment:
+      # Laravel 應用程式執行環境參數
+      APP_ENV: local                      # 應用程式執行環境 (local 代表本地開發)
+      APP_DEBUG: "true"                   # 啟用偵錯模式，API 報錯時會回傳詳細的 Exception 資訊
+
+      # 資料庫連線配置 (Database-per-service，各微服務獨立資料庫)
+      DB_CONNECTION: mysql                # 使用 MySQL 連線驅動
+      DB_HOST: mariadb                    # 資料庫主機，指向基礎設施容器中的 mariadb
+      DB_PORT: 3306                       # MariaDB 連線埠號
+      DB_DATABASE: example_db             # 此服務專屬的資料庫名稱
+      DB_USERNAME: root                   # 資料庫登入帳號
+      DB_PASSWORD: root@0000              # 資料庫登入密碼
+
+      # Redis 快取配置
+      REDIS_HOST: redis                   # 快取主機，指向基礎設施容器中的 redis
+      REDIS_PORT: 6379                    # Redis 連線埠號
+
+      # RabbitMQ 訊息佇列配置
+      RABBITMQ_HOST: rabbitmq             # 訊息佇列主機，指向基礎設施容器中的 rabbitmq
+      RABBITMQ_PORT: 5672                 # RabbitMQ 連線埠號
+    restart: unless-stopped               # 容器重啟策略：除非手動停止，否則發生異常或 Docker 重啟時會自動重啟
+    networks:
+      - dddtest-network                   # 加入專案的共享橋接網路，使各微服務與基礎設施之間可以互相連通
+
 volumes:
   user-vendor:
   order-vendor:
+  example-vendor:
 
 networks:
   dddtest-network:
